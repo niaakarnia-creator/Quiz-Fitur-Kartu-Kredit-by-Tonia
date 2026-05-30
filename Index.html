@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Fitur Kartu Kredit - Trainee Tools by Tonia</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #0ea5e9;
+    --accent2: #38bdf8;
+    --gold: #f59e0b;
+    --success: #10b981;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --radius: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(14,165,233,0.06) 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.04) 0%, transparent 60%);
+  }
+
+  /* ===== SCREEN: START ===== */
+  #startScreen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 2rem;
+  }
+  .start-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 3rem 2.5rem;
+    max-width: 480px; width: 100%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(14,165,233,0.08);
+  }
+  .logo-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(14,165,233,0.1);
+    border: 1px solid rgba(14,165,233,0.25);
+    border-radius: 100px;
+    padding: 6px 16px; font-size: 12px; font-weight: 600;
+    color: var(--accent2); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 1.5rem;
+  }
+  .start-card h1 {
+    font-size: 2rem; font-weight: 800; line-height: 1.2;
+    margin-bottom: 0.6rem;
+    background: linear-gradient(135deg, #e2e8f0 30%, var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .start-card p {
+    color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; line-height: 1.6;
+  }
+  .info-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 2rem;
+  }
+  .info-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px;
+    font-size: 0.78rem;
+  }
+  .info-item strong { display: block; font-size: 1.1rem; font-weight: 700; color: var(--accent2); }
+
+  label.field-label { display: block; text-align: left; font-size: 0.82rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .name-input {
+    width: 100%; padding: 12px 16px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: inherit; font-size: 0.95rem;
+    outline: none; transition: border-color .2s;
+    margin-bottom: 1.2rem;
+  }
+  .name-input:focus { border-color: var(--accent); }
+  .name-input::placeholder { color: var(--muted); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 13px 28px; border-radius: 10px;
+    font-family: inherit; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; transition: all .2s; border: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #0284c7);
+    color: #fff; width: 100%;
+    box-shadow: 0 4px 20px rgba(14,165,233,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(14,165,233,0.45); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ===== SCREEN: QUIZ ===== */
+  #quizScreen { display: none; min-height: 100vh; }
+
+  .quiz-header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(10,15,30,0.9); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .q-counter {
+    font-size: 0.8rem; font-weight: 700; color: var(--muted);
+    white-space: nowrap;
+  }
+  .q-counter span { color: var(--accent2); font-size: 1rem; }
+  .progress-bar {
+    flex: 1; height: 6px;
+    background: var(--border); border-radius: 100px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold));
+    border-radius: 100px; transition: width .4s ease;
+  }
+  .timer-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 100px; padding: 4px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem; font-weight: 500; color: var(--text);
+    white-space: nowrap; min-width: 64px; justify-content: center;
+  }
+  .timer-pill.warning { border-color: var(--gold); color: var(--gold); }
+  .timer-pill.danger  { border-color: var(--danger); color: var(--danger); animation: pulse .6s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  .quiz-body { max-width: 680px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .question-num {
+    font-size: 0.75rem; font-weight: 700; color: var(--accent2);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .question-text {
+    font-size: 1.08rem; font-weight: 600; line-height: 1.55;
+    margin-bottom: 1.6rem; color: var(--text);
+  }
+  .options-list { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    cursor: pointer; text-align: left;
+    font-family: inherit; font-size: 0.9rem; font-weight: 500;
+    color: var(--text); transition: all .18s;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(14,165,233,0.06);
+  }
+  .option-btn .opt-label {
+    flex-shrink: 0; width: 26px; height: 26px;
+    background: var(--border); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; color: var(--muted);
+    transition: all .18s;
+  }
+  .option-btn:hover:not(:disabled) .opt-label {
+    background: var(--accent); color: #fff;
+  }
+  .option-btn.selected {
+    border-color: var(--accent);
+    background: rgba(14,165,233,0.1);
+  }
+  .option-btn.selected .opt-label { background: var(--accent); color: #fff; }
+  .option-btn.correct {
+    border-color: var(--success); background: rgba(16,185,129,0.08);
+    animation: correctPop .3s ease;
+  }
+  .option-btn.correct .opt-label { background: var(--success); color: #fff; }
+  .option-btn.wrong {
+    border-color: var(--danger); background: rgba(239,68,68,0.08);
+    animation: wrongShake .35s ease;
+  }
+  .option-btn.wrong .opt-label { background: var(--danger); color: #fff; }
+  .option-btn:disabled { cursor: default; }
+  @keyframes correctPop {
+    0%{ transform: scale(1) } 50%{ transform: scale(1.02) } 100%{ transform: scale(1) }
+  }
+  @keyframes wrongShake {
+    0%,100%{ transform: translateX(0) } 25%{ transform: translateX(-6px) } 75%{ transform: translateX(6px) }
+  }
+  .feedback-bar {
+    margin-top: 12px; padding: 10px 16px;
+    border-radius: 10px; font-size: 0.85rem; font-weight: 600;
+    display: none; align-items: center; gap: 8px;
+  }
+  .feedback-bar.show { display: flex; }
+  .feedback-bar.correct-fb { background: rgba(16,185,129,0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+  .feedback-bar.wrong-fb   { background: rgba(239,68,68,0.12);  color: var(--danger);  border: 1px solid rgba(239,68,68,0.2); }
+
+  .timeout-bar {
+    margin-top: 12px; padding: 10px 16px;
+    border-radius: 10px; font-size: 0.85rem; font-weight: 600;
+    background: rgba(245,158,11,0.12); color: var(--gold);
+    border: 1px solid rgba(245,158,11,0.2);
+    display: none; align-items: center; gap: 8px;
+  }
+  .timeout-bar.show { display: flex; }
+
+  .nav-row { margin-top: 1.8rem; display: flex; justify-content: flex-end; gap: 10px; }
+  .btn-submit {
+    background: linear-gradient(135deg, var(--gold), #d97706);
+    color: #fff; padding: 12px 26px; border-radius: 10px;
+    font-family: inherit; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; border: none; transition: all .2s;
+    box-shadow: 0 4px 16px rgba(245,158,11,0.3);
+    display: none;
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.4); }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-next {
+    background: linear-gradient(135deg, var(--accent), #0284c7);
+    color: #fff; padding: 12px 26px; border-radius: 10px;
+    font-family: inherit; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; border: none; transition: all .2s;
+    box-shadow: 0 4px 16px rgba(14,165,233,0.3);
+    display: none;
+  }
+  .btn-next:hover { transform: translateY(-2px); }
+
+  /* ===== SCREEN: RESULT ===== */
+  #resultScreen { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 2rem; }
+  .result-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 24px; padding: 3rem 2.5rem;
+    max-width: 520px; width: 100%; text-align: center;
+    box-shadow: 0 0 60px rgba(14,165,233,0.08);
+  }
+  .score-circle {
+    width: 140px; height: 140px; margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) calc(var(--pct) * 1%), var(--border) 0);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .score-circle::before {
+    content: ''; position: absolute; inset: 10px;
+    background: var(--surface); border-radius: 50%;
+  }
+  .score-inner {
+    position: relative; z-index: 1;
+    font-size: 2rem; font-weight: 800;
+    background: linear-gradient(135deg, #e2e8f0, var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .result-name { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+  .result-msg  { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.8rem; }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-bottom: 2rem;
+  }
+  .stat-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 10px;
+  }
+  .stat-box strong { display: block; font-size: 1.4rem; font-weight: 800; }
+  .stat-box strong.s { color: var(--success); }
+  .stat-box strong.d { color: var(--danger); }
+  .stat-box strong.g { color: var(--gold); }
+  .stat-box span { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .result-btn-row { display: flex; gap: 10px; }
+  .btn-reset {
+    flex: 1; padding: 13px; border-radius: 10px;
+    font-family: inherit; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    transition: all .2s;
+  }
+  .btn-reset:hover { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ===== START SCREEN ===== -->
+<div id="startScreen">
+  <div class="start-card">
+    <div class="logo-badge">🎓 Trainee Tools by Tonia</div>
+    <h1>Quiz Fitur<br>Kartu Kredit</h1>
+    <p>Uji pemahaman Anda tentang fitur-fitur Kartu Kredit BCA. Setiap soal memiliki waktu <strong>1 menit</strong>.</p>
+    <div class="info-grid">
+      <div class="info-item"><strong id="totalQInfo">—</strong>Jumlah Soal</div>
+      <div class="info-item"><strong>60 detik</strong>Per Soal</div>
+      <div class="info-item"><strong>Latihan</strong>Mode</div>
+      <div class="info-item"><strong>Score</strong>Akhir Quiz</div>
+    </div>
+    <label class="field-label" for="nameInput">Nama Trainee</label>
+    <input id="nameInput" class="name-input" type="text" placeholder="Masukkan nama Anda..." maxlength="60" />
+    <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>Mulai Quiz →</button>
+  </div>
+</div>
+
+<!-- ===== QUIZ SCREEN ===== -->
+<div id="quizScreen">
+  <div class="quiz-header">
+    <div class="q-counter">Soal <span id="qNum">1</span>/<span id="qTotal">—</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="timer-pill" id="timerPill">⏱ <span id="timerDisp">60</span>s</div>
+  </div>
+  <div class="quiz-body">
+    <div class="question-num" id="qNumLabel">Soal 1</div>
+    <div class="question-text" id="qText"></div>
+    <div class="options-list" id="optionsList"></div>
+    <div class="feedback-bar" id="feedbackBar"></div>
+    <div class="timeout-bar" id="timeoutBar">⏰ Waktu habis! Lanjut ke soal berikutnya.</div>
+    <div class="nav-row">
+      <button class="btn-submit" id="submitBtn" onclick="submitAnswer()">✔ Submit</button>
+      <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Selanjutnya →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESULT SCREEN ===== -->
+<div id="resultScreen">
+  <div class="result-card">
+    <div class="score-circle" id="scoreCircle">
+      <div class="score-inner" id="scoreInner">—</div>
+    </div>
+    <div class="result-name" id="resultName"></div>
+    <div class="result-msg"  id="resultMsg"></div>
+    <div class="stats-grid">
+      <div class="stat-box"><strong class="s" id="rCorrect">—</strong><span>Benar</span></div>
+      <div class="stat-box"><strong class="d" id="rWrong">—</strong><span>Salah</span></div>
+      <div class="stat-box"><strong class="g" id="rSkipped">—</strong><span>Timeout</span></div>
+    </div>
+    <div class="result-btn-row">
+      <button class="btn btn-primary" style="flex:1" onclick="resetQuiz()">🔄 Latihan Lagi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    q: "Fitur keamanan tambahan saat pemegang kartu melakukan transaksi pembelian di Internet dengan website adalah",
+    opts: ["3D Secure","Velocity","Secure My Card","Payment Gateway"],
+    ans: 0
+  },
+  {
+    q: "Provider yang tidak support dengan fitur 3D Secure adalah",
+    opts: ["Telkomsel","Axis","XL","By.u"],
+    ans: 1
+  },
+  {
+    q: "Apabila ada nasabah melakukan perubahan no hp untuk pengiriman kode OTP untuk transaksi online, berapa lama perubahan data akan efektif?",
+    opts: ["H+1 hari kerja (sebelum jam 18.00)","H+1 hari kerja","H+3 hari kalender","H+3 hari kerja"],
+    ans: 1
+  },
+  {
+    q: "Berapa digit kode OTP untuk transaksi 3D Secure?",
+    opts: ["8 digit","5 digit","4 digit","6 digit"],
+    ans: 3
+  },
+  {
+    q: "Berapa kali salah OTP akan terblokir?",
+    opts: ["5 kali salah","3 kali salah","6 kali salah","Tidak dapat terblokir"],
+    ans: 0
+  },
+  {
+    q: "Berapa lama Time Remaining untuk kode OTP 3D Secure?",
+    opts: ["3 menit","1 menit","5 menit","2 menit"],
+    ans: 2
+  },
+  {
+    q: "Jika nasabah terima respon \"failed to deliver authorization code please click on to resend\" pada saat transaksi 3D Secure, artinya adalah",
+    opts: [
+      "OTP tidak berhasil terkirim ke HP karena HP dalam keadaan OFF (mati)",
+      "No HP yang salah/kurang atau No HP adalah CDMA",
+      "No HP belum terdaftar",
+      "Salah memasukkan OTP ke Web"
+    ],
+    ans: 0
+  },
+  {
+    q: "Berikut negara yang perlu melengkapi dokumen tambahan jika nasabah ingin gunakan no hp luar negeri untuk pengiriman kode OTP adalah",
+    opts: ["Afghanistan, Bangladesh","Georgia, Italia","Filipina, Vietnam","Israel, Rusia"],
+    ans: 2
+  },
+  {
+    q: "Batas maksimum limit cash advance kartu kredit BCA adalah",
+    opts: ["40% dari kredit limit","30% dari kredit limit","20% dari kredit limit","100% dari kredit limit"],
+    ans: 2
+  },
+  {
+    q: "Batas minimum penarikan tunai cash advance kartu kredit adalah",
+    opts: ["Rp. 50.000","Rp. 100.000","Rp. 500.000","Rp. 1.000.000"],
+    ans: 1
+  },
+  {
+    q: "Berapa digit untuk PIN Cash Advance?",
+    opts: ["6 digit angka","8 digit angka","12 digit angka","5 digit angka"],
+    ans: 0
+  },
+  {
+    q: "Batas maksimum penarikan cash advance kartu kredit bank lain di counter BCA adalah",
+    opts: [
+      "Tergantung kebijakan masing-masing bank",
+      "Rp. 5.000.000,-/transaksi",
+      "Rp. 15.000.000,-/hari",
+      "Rp. 15.000.000,-/transaksi"
+    ],
+    ans: 3
+  },
+  {
+    q: "Kartu yang dapat melakukan transaksi cash advance di Counter BCA, mesin ATM berlogo Visa Plus, Master, Cirrus, Maestro, Counter bank lain di dalam & luar negeri adalah",
+    opts: ["Visa/BCA Card","Visa/Master Card","BCA/Amex","A dan B benar"],
+    ans: 1
+  },
+  {
+    q: "Berikut jenis kartu yang tidak dapat melakukan transaksi cash advance transfer adalah",
+    opts: ["BCA Card Everyday","Visa Batman","BCA UnionPay","JCB Black"],
+    ans: 1
+  },
+  {
+    q: "Cash advance fee untuk kartu kredit JCB Black adalah?",
+    opts: ["4%/min Rp.40.000","3%","5%/min. Rp 100.000","1.75%"],
+    ans: 0
+  },
+  {
+    q: "Biaya interest yang dikenakan untuk transaksi cash advance untuk kartu kredit BCA Visa/MasterCard Gold adalah",
+    opts: ["0.50%","0.75%","1.25%","1.75%"],
+    ans: 3
+  },
+  {
+    q: "Biaya administrasi transaksi cash advance di counter Kartu Kredit Bank Lain adalah",
+    opts: ["Rp 20.000,-/transaksi","Rp 25.000,-/transaksi","Rp 50.000,-/transaksi","Rp 75.000,-/transaksi"],
+    ans: 3
+  },
+  {
+    q: "Jenis kartu kredit yang dapat digunakan untuk transaksi Cash Advance di mesin EDC adalah",
+    opts: ["Kartu kredit UNIONPAY","Kartu kredit JCB","Kartu kredit BCA Card","Kartu kredit MasterCard"],
+    ans: 3
+  },
+  {
+    q: "Dokumen yang diperlukan cabang jika nasabah melakukan transaksi cash advance di cabang adalah",
+    opts: [
+      "Identitas asli (KTP-el/paspor) dan kartu kredit cardholder",
+      "Fotocopy dokumen identitas cardholder dan kartu kredit cardholder",
+      "Kartu kredit cardholder dan Kartu ATM",
+      "Semua benar"
+    ],
+    ans: 0
+  },
+  {
+    q: "Format password awal e-statement kartu kredit adalah",
+    opts: ["ddmmyy (Tanggal Lahir Ch)","ddmmyyyy (Tanggal Lahir Ch)","yyyymmdd (Tanggal Lahir Ch)","yymmdd (Tanggal Lahir Ch)"],
+    ans: 1
+  },
+  {
+    q: "Kapan akan efektif jika nasabah melakukan perubahan cara pengiriman billing statement?",
+    opts: [
+      "Pada tagihan selanjutnya",
+      "Pada hari kerja berikutnya",
+      "Sesuai SLDD laporan",
+      "H+1 hari kerja setelah pengajuan disetujui"
+    ],
+    ans: 0
+  },
+  {
+    q: "Berapa lama periode aktivasi setelah melakukan registrasi e-Statement?",
+    opts: ["120 hari","80 hari","60 hari","30 hari"],
+    ans: 3
+  },
+  {
+    q: "Alamat email pengirim e-statement adalah",
+    opts: [
+      "eStatement@klikbca.co.id",
+      "eStatementBCA@klikbca.com",
+      "eStatement@klikbca.com",
+      "halobca@bca.co.id"
+    ],
+    ans: 2
+  },
+  {
+    q: "Jika mailbox CH penuh, kapan sistem akan melakukan resend email E-Statement secara otomatis?",
+    opts: ["H+1","H+2","H+3","H+4"],
+    ans: 2
+  },
+  {
+    q: "Password e-statement terdiri dari",
+    opts: [
+      "6-12 karakter (bisa kombinasi huruf dan angka)",
+      "8-12 karakter (bisa kombinasi huruf dan angka dan karakter spesial)",
+      "6-12 karakter (bisa kombinasi huruf dan angka dan karakter spesial)",
+      "8-12 karakter (bisa kombinasi huruf dan angka)"
+    ],
+    ans: 3
+  },
+  {
+    q: "Permintaan (request) dan pengiriman ulang (resend) e-statement yang dapat di-request adalah",
+    opts: ["12 bulan ke belakang","24 bulan ke belakang","18 bulan ke belakang","6 bulan ke belakang"],
+    ans: 0
+  },
+  {
+    q: "Kriteria CH yang tidak menerima SMS notifikasi, kecuali:",
+    opts: [
+      "Bila tagihannya dibawah Rp.50.000,-",
+      "Bila CH sudah melakukan pembayaran",
+      "Bukan Customer Smartcash",
+      "Bukan Customer Corporate Card"
+    ],
+    ans: 2
+  },
+  {
+    q: "Berikut transaksi yang dapat dilakukan melalui mesin ATM dengan menggunakan kartu kredit BCA Card, kecuali",
+    opts: ["Pembayaran LISTRIK/PLN","Ganti PIN","Info Tagihan","Top Up Saldo Flazz"],
+    ans: 3
+  },
+  {
+    q: "Jenis rekening yang bisa didaftarkan untuk autodebet kartu kredit, kecuali",
+    opts: [
+      "Tahapan Xpresi",
+      "Tapres",
+      "TabunganKu",
+      "Giro (Giro rupiah joint account dengan status \"DAN\")"
+    ],
+    ans: 3
+  },
+  {
+    q: "Sarana pengajuan Registrasi autodebet kartu kredit adalah",
+    opts: ["SMS","Halo BCA","Cabang","Website"],
+    ans: 2
+  },
+  {
+    q: "Waktu efektif untuk perubahan persentase autodebet jika dilakukan sebelum tanggal cetak billing adalah",
+    opts: [
+      "Efektif untuk billing bulan berikutnya",
+      "Langsung efektif pada saat tanggal jatuh tempo",
+      "H+1 hari kerja setelah pengajuan disetujui",
+      "Sesuai SLDD laporan"
+    ],
+    ans: 1
+  },
+  {
+    q: "Waktu efektif untuk perubahan no rekening pendebetan jika diproses setelah tanggal cetak dan sebelum tanggal jatuh tempo adalah",
+    opts: [
+      "Efektif untuk billing bulan berikutnya",
+      "Langsung efektif pada saat tanggal jatuh tempo",
+      "H+1 hari kerja setelah pengajuan disetujui",
+      "Sesuai SLDD laporan"
+    ],
+    ans: 0
+  },
+  {
+    q: "Waktu efektif perubahan dari payment manual ke autodebet jika diproses setelah tanggal cetak tagihan adalah",
+    opts: [
+      "Efektif untuk billing bulan berikutnya",
+      "Langsung efektif pada saat tanggal jatuh tempo",
+      "H+1 hari kerja setelah pengajuan disetujui",
+      "Sesuai SLDD laporan"
+    ],
+    ans: 0
+  },
+  {
+    q: "Berikut pilihan presentase autodebet, kecuali",
+    opts: ["5%","30%","50%","100%"],
+    ans: 0
+  },
+  {
+    q: "Pembebanan Bea Meterai dikenakan jika",
+    opts: [
+      "Pembayaran nasabah Rp. 5.000.025",
+      "Tagihan nasabah Rp. 10.000.000",
+      "Transaksi nasabah Rp. 5.000.000",
+      "Tagihan nasabah Rp. 5.000.000"
+    ],
+    ans: 0
+  },
+  {
+    q: "Apabila pendebetan dilakukan dari rekening BCA orang lain maka dokumen yang perlu dilengkapi adalah",
+    opts: [
+      "Form fasilitas di atas meterai 10.000 dan menyertakan E-KTP pemilik rekening dan pemilik kartu kredit bisa di cabang BCA terdekat",
+      "Form fasilitas di atas meterai 10.000 dan menyertakan E-KTP pemilik rekening dan pemilik kartu kredit bisa di cabang BCA asal pemilik rekening",
+      "Form fasilitas autodebet dan menyertakan E-KTP pemilik rekening dan pemilik kartu kredit bisa di cabang BCA terdekat",
+      "Form fasilitas autodebet dan menyertakan E-KTP pemilik rekening dan pemilik kartu kredit bisa di cabang BCA asal pemilik kartu kredit"
+    ],
+    ans: 0
+  },
+  {
+    q: "Minimum transaksi perubahan cicilan adalah",
+    opts: [
+      "Rp 500.000",
+      "Rp 500.000 dapat dilakukan lebih dari 1 kali transaksi",
+      "Rp 500.000 dalam 1 kali transaksi",
+      "40% min. Rp 40.000"
+    ],
+    ans: 2
+  },
+  {
+    q: "Berikut transaksi yang tidak dapat diubah menjadi cicilan, kecuali",
+    opts: ["Cash Advance","Asuransi dengan premi tahunan","Asuransi dengan premi bulanan","Autopay"],
+    ans: 1
+  },
+  {
+    q: "Pengajuan cicilan regular dengan transaksi masih di AIQA (belum ada di PCTD) dan tidak terecord di BCIR maka status laporannya",
+    opts: ["Closed","Assigned","Cancel","Owned"],
+    ans: 1
+  },
+  {
+    q: "Berikut syarat pengajuan cicilan, kecuali",
+    opts: [
+      "Transaksi retail dan seluruh transaksi dengan kode transaksi TC 4000",
+      "Limit kartu kredit dalam keadaan over limit",
+      "Pengajuan saat tanggal jatuh tempo tagihan",
+      "Pengajuan menggunakan kartu kredit Smartcash"
+    ],
+    ans: 1
+  },
+  {
+    q: "Jika status kartu kredit CH \"L\" maka status cicilan CH akan…",
+    opts: [
+      "Cicilan tetap berjalan normal (di kartu lama)",
+      "Cicilan otomatis tertagih secara full tanpa dikenakan penalti",
+      "Cicilan otomatis tertagih secara full dan dikenakan penalti",
+      "CCO wajib melakukan pemindahan cicilan"
+    ],
+    ans: 0
+  },
+  {
+    q: "Pengajuan Cicilan BCA dapat dilakukan oleh nasabah melalui sarana berikut, kecuali",
+    opts: [
+      "SMS",
+      "Payment Gateway",
+      "Cabang dengan pemegang kartu berada di wilayah Non-Jabodetabek",
+      "Email halobca@bca.co.id"
+    ],
+    ans: 3
+  },
+  {
+    q: "Berikut ini yang bukan ketentuan pengajuan konversi cicilan Kartu Kredit BCA di BCA mobile adalah",
+    opts: [
+      "Kartu Kredit BCA sudah dikoneksikan",
+      "Hanya dapat dilakukan oleh nasabah yang telah melakukan aktivasi fitur finansial pada m-BCA",
+      "Hanya dapat dilakukan pada transaksi yang memiliki tanda untuk dikonversi menjadi cicilan",
+      "Jenis rekening joint account"
+    ],
+    ans: 3
+  },
+  {
+    q: "Berapa lama cicilan akan terbentuk jika nasabah melakukan perubahan melalui m-BCA?",
+    opts: ["H + 7","H + 5","H + 3","H + 1"],
+    ans: 3
+  },
+  {
+    q: "Berikut syarat pengajuan cicilan 0% luar negeri yang salah, kecuali",
+    opts: [
+      "Transaksi dilakukan di website di luar negeri",
+      "Transaksi min. Rp.500.000",
+      "Tenor cicilan 3, 6 dan 12 Bulan",
+      "Transaksi dilakukan pada jenis kartu kredit BCA Card/ Visa / Master / JCB / UnionPay / World"
+    ],
+    ans: 2
+  },
+  {
+    q: "Berikut syarat pengajuan cicilan 0% di rumah sakit, kecuali",
+    opts: [
+      "Tenor Cicilan 3 bulan",
+      "Deskripsi Transaksi memuat kata-kata \"Rumah Sakit\" atau \"RSK\" atau \"RSIA\" atau \"RS\" atau \"RSU\" atau \"Hospital\"",
+      "Tenor Cicilan 6 dan 12 Bulan",
+      "Minimal transaksi Rp. 500.000,-"
+    ],
+    ans: 2
+  },
+  {
+    q: "Berikut jenis kartu kredit yang dilengkapi fitur contactless, kecuali",
+    opts: ["BCA UnionPay","BCA Everyday","BCA Visa Batman","MasterCard Black"],
+    ans: 1
+  },
+  {
+    q: "Limit awal transaksi/hari Tanpa PIN adalah",
+    opts: ["Rp 200 juta","Rp 10 juta","> Rp 1 juta","<= Rp 1 juta"],
+    ans: 1
+  },
+  {
+    q: "Limit frekuensi transaksi per hari dengan ataupun tanpa PIN adalah",
+    opts: ["Tidak ada pembatasan limit","20 kali/hari","10 kali/hari","5 kali/hari"],
+    ans: 0
+  },
+  {
+    q: "Cara mengaktifkan fitur contactless pada kartu kredit Visa dan Mastercard adalah",
+    opts: [
+      "Fitur Contactless akan aktif ketika nasabah sudah melakukan aktivasi kartu dan 1x bertransaksi PIN di mesin EDC/ATM",
+      "Fitur Contactless akan langsung aktif ketika nasabah melakukan aktivasi kartu",
+      "Perlu aktivasi melalui e-channel atau Halo BCA",
+      "Fitur Contactless akan aktif ketika nasabah sudah melakukan aktivasi kartu dan 1x transaksi"
+    ],
+    ans: 0
+  },
+  {
+    q: "Penawaran khusus yang diberikan kepada pemegang kartu utama untuk memperoleh pinjaman uang tunai dari sisa kredit limit gabungan Kartu Kredit BCA adalah",
+    opts: ["Cash Advance","Cicilan","Instant Cash","Autopay"],
+    ans: 2
+  },
+  {
+    q: "Berikut syarat pengajuan instant cash, kecuali",
+    opts: [
+      "Untuk rekening tujuan yang dapat ditransfer adalah rekening BCA dalam mata uang IDR",
+      "Min. 1 tahun menjadi CH BCA",
+      "Usia saat pengajuan maksimal 55 tahun",
+      "Wajib Memiliki NPWP"
+    ],
+    ans: 0
+  },
+  {
+    q: "Maksimal pinjaman yang dapat diberikan untuk instant cash adalah",
+    opts: [
+      "40% dari sisa Limit Gabungan KK",
+      "50% dari sisa Limit Gabungan KK",
+      "20% dari sisa Limit Gabungan KK",
+      "10% dari sisa Limit Gabungan KK"
+    ],
+    ans: 1
+  },
+  {
+    q: "Minimal pengajuan instant cash adalah",
+    opts: ["Min. Rp 100.000","Min. Rp 1.000.000","Min. Rp 500.000","Min. Rp 3.000.000"],
+    ans: 2
+  },
+  {
+    q: "Berapa minimal kredit limit yang harus tersedia jika CH ingin ajukan instant cash?",
+    opts: [
+      "Min. 40% dari total kredit limit gabungan",
+      "Min. 50% dari total kredit limit gabungan",
+      "Min. 20% dari total kredit limit gabungan",
+      "Min. 10% dari total kredit limit gabungan"
+    ],
+    ans: 0
+  },
+  {
+    q: "Tenor dari Cicilan BCA Instant Cash adalah",
+    opts: [
+      "3 bulan, 6 bulan dan 9 bulan",
+      "3 bulan, 6 bulan dan 12 bulan",
+      "12 bulan, 15 bulan dan 18 bulan",
+      "6 bulan, 12 bulan dan 36 bulan"
+    ],
+    ans: 1
+  },
+  {
+    q: "Suku bunga Cicilan BCA Instant Cash adalah",
+    opts: ["1.25%","1.75%","0.50%","0.75%"],
+    ans: 3
+  },
+  {
+    q: "Jenis rekening yang bisa digunakan untuk tujuan pengkreditan dana instant cash, kecuali",
+    opts: ["Tahapan","Giro","BCA Dollar","Tabunganku"],
+    ans: 2
+  },
+  {
+    q: "Untuk memberikan kenyamanan bagi pemegang Kartu Kredit BCA dalam mendapatkan berbagai informasi serta meningkatkan service level fitur e-Statement, maka dilakukan penambahan fitur layanan yaitu",
+    opts: ["Fitur Layanan SMS / SMS e-Service","Fitur E-statement & e-info","Fitur E-info","Notifikasi"],
+    ans: 0
+  },
+  {
+    q: "Berikut keyword yang ditutup terkait layanan SMS kartu kredit, kecuali",
+    opts: ["Limit","Tagihan","Transaksi","Cicilan"],
+    ans: 3
+  },
+  {
+    q: "Apabila Tertanggung meninggal dunia diakibatkan karena kecelakaan, maka Chubb Life akan memberikan santunan tambahan ke Ahli Waris sebesar",
+    opts: ["Rp 25 juta","Rp 20 juta","Rp 15 juta","Rp 5 juta"],
+    ans: 3
+  },
+  {
+    q: "Jumlah maksimum santunan yang akan dibayarkan oleh Chubb Life adalah",
+    opts: ["Rp 25 juta","Rp 20 juta","Rp 15 juta","Rp 5 juta"],
+    ans: 0
+  },
+  {
+    q: "Premi yang harus dibayarkan oleh Tertanggung adalah sebesar",
+    opts: [
+      "0.5% dari total jumlah saldo terhutang (termasuk sisa outstanding cicilan)",
+      "0.4% dari total jumlah saldo terhutang, Maksimum premi Rp 100 ribu",
+      "0.4% dari total jumlah saldo terhutang (termasuk sisa outstanding cicilan), Maksimum premi Rp 100 ribu",
+      "0.5% dari total jumlah saldo terhutang (termasuk sisa outstanding cicilan), Maksimum premi Rp 100 ribu"
+    ],
+    ans: 2
+  },
+  {
+    q: "Dokumen Pendukung Claim Premi Credit Life dikirim ke email?",
+    opts: [
+      "halobca@bca.co.id",
+      "layanan_nasabah@bca.co.id",
+      "Fraud_issuing@bca.co.id",
+      "Dokumen_cc@bca.co.id"
+    ],
+    ans: 1
+  },
+  {
+    q: "Berikut transaksi yang mendapatkan reward untuk jenis Kartu Kredit BCA MasterCard dan VISA adalah",
+    opts: ["Pembayaran Listrik (PLN)","Pembayaran BPJS","Transaksi di Prudential","Instant Cash"],
+    ans: 3
+  },
+  {
+    q: "Berikut yang bukan transaksi-transaksi yang tidak mendapat reward",
+    opts: ["Transaksi cash advance","Transaksi online","Biaya-biaya","Bunga"],
+    ans: 1
+  },
+  {
+    q: "Besarnya Reward BCA yang diberikan kepada cardholder jika menggunakan kartu kredit BCA Card Platinum adalah",
+    opts: ["0,2%","0,5%","0,3%","15%"],
+    ans: 2
+  },
+  {
+    q: "Sarana informasi Reward Partnership adalah",
+    opts: ["Billing statement","BCA Mobile","myBCA","Halo BCA"],
+    ans: 0
+  },
+  {
+    q: "Opening balance adalah",
+    opts: [
+      "Pengumpulan reward rupiah sampai dengan tagihan bulan sebelumnya",
+      "Penambahan reward rupiah sampai dengan transaksi terakhir yang terjadi di lembar tagihan bulan terakhir",
+      "Penukaran reward rupiah yang terjadi sampai dengan tagihan bulan terakhir",
+      "Penyesuaian/koreksi dari pengumpulan reward rupiah"
+    ],
+    ans: 0
+  },
+  {
+    q: "Pengertian Adjusted pada reward adalah",
+    opts: [
+      "Pengumpulan reward rupiah sampai dengan tagihan bulan sebelumnya",
+      "Penyesuaian/koreksi dari pengumpulan reward rupiah",
+      "Opening balance + issued - redeemed + adjusted",
+      "Penukaran reward rupiah yang terjadi sampai dengan tagihan bulan terakhir"
+    ],
+    ans: 1
+  },
+  {
+    q: "Jika nasabah melakukan Redemption di Merchant BCA dengan jumlah Reward BCA < nilai transaksi maka pelaksanaan redemption adalah",
+    opts: [
+      "Pemegang kartu memiliki Reward BCA minimal sebesar Rp 25.000",
+      "Dilakukan 100% dari nilai transaksi dan sisa Reward BCA dapat digunakan untuk transaksi lainnya",
+      "Dilakukan 100% dari Reward BCA dan kekurangannya ditagihkan pada Kartu Kredit BCA",
+      "Pemegang kartu memiliki Reward BCA minimal sesuai nominal transaksi"
+    ],
+    ans: 2
+  },
+  {
+    q: "Syarat penukaran reward BCA ke Krisflyer Miles adalah",
+    opts: [
+      "Berlaku untuk WNI dan WNA",
+      "Cardholder saat ini berdomisili di Indonesia",
+      "Minimal penukaran Rp 20.000,-",
+      "Berlaku untuk pemegang kartu kredit Utama dan Supplement"
+    ],
+    ans: 2
+  },
+  {
+    q: "Berikut airline yang tidak bekerjasama untuk melakukan penukaran reward BCA adalah",
+    opts: ["Japan Airlines","CitiLink","Garuda Airlines","Batik Air"],
+    ans: 3
+  },
+  {
+    q: "Fitur Otomatis yang melekat pada Kartu Kredit BCA untuk Asuransi Kecelakaan Perjalanan adalah",
+    opts: ["Financial Guard","Dental Care Plan","Travel Insurance","BCA Travel Service"],
+    ans: 2
+  },
+  {
+    q: "Nominal yang di-cover asuransi jika nasabah meninggal dunia pada saat perjalanan keberangkatan ke bandara jika menggunakan kartu kredit BCA Visa Batman adalah",
+    opts: ["Rp. 600.000.000","Rp. 200.000.000","Rp. 1.000.000.000","Tidak dapat di-cover"],
+    ans: 0
+  },
+  {
+    q: "Fitur yang dapat memindahkan tagihan rutin bulanannya ke dalam tagihan Kartu Kredit BCA adalah",
+    opts: ["Autodebet","Autopay","Recurring","Instalment"],
+    ans: 1
+  },
+  {
+    q: "Fitur pendebetan secara otomatis untuk pembayaran tagihan kartu kredit adalah",
+    opts: ["Autodebet","Autopay","Recurring","Instalment"],
+    ans: 0
+  },
+  {
+    q: "Autopay berlaku untuk semua pemegang Kartu Kredit BCA dan pemegang kartu tambahannya, kecuali",
+    opts: ["BCA Singapore Airlines KrisFlyer","BCA Mastercard","BCA Visa Card","BCA Card"],
+    ans: 0
+  },
+  {
+    q: "Berikut yang bukan Ketentuan Umum Program Autopay BCA adalah",
+    opts: [
+      "Tagihan yang didaftarkan ke fasilitas Autopay BCA bukan atas nama perusahaan",
+      "Pendaftaran Autopay akan dibatasi maks. 10 ID pelanggan untuk merchant yang sama di dalam 1 no kartu",
+      "CCO wajib meminta informasi nomor kartu kredit dan expiry date kartu kredit salah satu yang aktif",
+      "Ada pengenaan biaya administrasi untuk beberapa merchant Autopay"
+    ],
+    ans: 2
+  },
+  {
+    q: "Sarana yang tidak dapat melakukan pengajuan Autopay BCA",
+    opts: [
+      "Halo BCA",
+      "SMS ketik 'Autopay' kirim ke 89888",
+      "Website www.bca.com/creditcard",
+      "Cabang BCA"
+    ],
+    ans: 2
+  },
+  {
+    q: "Berapa lama proses registrasi autopay?",
+    opts: ["3-7 hari kerja","7-14 hari kerja","14-21 hari kerja","Sesuai service level laporan"],
+    ans: 0
+  },
+  {
+    q: "Berapa lama maksimal email konfirmasi akan dikirimkan jika pendaftaran Autopay nya berhasil diproses?",
+    opts: ["1 hari","3 hari","7 hari","14 hari"],
+    ans: 3
+  },
+  {
+    q: "Jenis tagihan yang dapat didaftarkan autopay untuk category Public Utility adalah",
+    opts: ["AETRA","PALYJA","PAM JAYA","BIZNET"],
+    ans: 2
+  },
+  {
+    q: "Waktu pengajuan setelah tanggal cut-off dalam suatu bulan maka Waktu efektif penagihan atau pembatalan/penghentian Autopay BCA adalah",
+    opts: [
+      "Dapat dilakukan pada bulan yang sama atau maksimal 1 bulan berikutnya",
+      "Dapat dilakukan pada bulan yang sama atau maksimal 2 bulan berikutnya",
+      "Dapat dilakukan pada saat laporan disetujui pihak terkait",
+      "Dapat dilakukan pada bulan yang sama"
+    ],
+    ans: 1
+  },
+  {
+    q: "Channel penutupan Autopay BCA Prudential yaitu",
+    opts: ["Halo BCA","Cabang","Website","Merchant"],
+    ans: 3
+  },
+  {
+    q: "Apabila ada permohonan penutupan ID Pelanggan Autopay BCA untuk merchant–merchant di bawah ini yang dapat CCO arahkan ke pihak merchant adalah",
+    opts: ["CELEBRITY FITNESS","BPJS KESEHATAN","AYANA RESIDENCES","TELKOM"],
+    ans: 0
+  },
+  {
+    q: "Pendaftaran autopay 1 ID BPJS akan berlaku untuk",
+    opts: [
+      "1 nama individu sesuai yang di daftarkan",
+      "1 Virtual Account (VA) keluarga",
+      "Hanya berlaku untuk nama yang sama dengan kartu kredit",
+      "1 Virtual Account (VA) yang terdaftar di BPJS"
+    ],
+    ans: 1
+  },
+  {
+    q: "Berapa digit Nomor Kartu BPJS Kesehatan?",
+    opts: [
+      "13 digit numerik diawali \"000\"",
+      "16 digit numerik diawali \"000\"",
+      "8 digit numerik diawali \"000\"",
+      "10 digit numerik diawali \"000\""
+    ],
+    ans: 0
+  },
+  {
+    q: "Limit transaksi Transfer ke rekening BCA (per hari) dengan jenis kartu kredit UnionPay adalah",
+    opts: ["Rp. 4.000.000","Rp. 5.000.000","Rp. 10.000.000","Rp. 2.500.000"],
+    ans: 0
+  },
+  {
+    q: "Pembayaran Minimum kartu kredit sebesar",
+    opts: [
+      "10% dari total tagihan per customer atau sebesar Rp 50.000",
+      "5% dari total tagihan per customer atau sebesar Rp 50.000",
+      "10% dari total tagihan per customer atau sebesar Rp 100.000",
+      "10% dari total tagihan per customer"
+    ],
+    ans: 1
+  },
+  {
+    q: "Presentase autodebet BCA Amex Platinum adalah",
+    opts: ["10%","30%","50%","100%"],
+    ans: 3
+  },
+  {
+    q: "Siklus tagihan (tanggal rekening) adalah",
+    opts: [
+      "1, 3, 5, 8, 10, 15, 16, 18, 20, 23, 25",
+      "1, 3, 5, 8, 10, 12, 16, 18, 20, 23, 25",
+      "1, 3, 5, 9, 10, 12, 16, 18, 20, 23, 25",
+      "1, 3, 5, 8, 10, 12, 16, 18, 21, 23, 25"
+    ],
+    ans: 1
+  },
+  {
+    q: "Jika tanggal jatuh tempo merupakan hari libur/weekend maka maksimal pembayaran",
+    opts: [
+      "Sesuai tanggal jatuh tempo",
+      "Dilakukan 1 hari kalender setelah tanggal jatuh tempo",
+      "Dilakukan 1 hari kerja setelah tanggal jatuh tempo",
+      "Dilakukan 2 hari kerja setelah tanggal jatuh tempo"
+    ],
+    ans: 1
+  },
+  {
+    q: "Apabila tanggal cycle CH jatuh di hari minggu atau libur nasional maka",
+    opts: [
+      "Pencetakan billingnya tetap (tidak ada perubahan)",
+      "Pencetakan dilakukan 1 hari kalender setelah tanggal cetak",
+      "Pencetakan dilakukan 1 hari kerja setelah tanggal cetak",
+      "Pencetakan dilakukan 2 hari kerja setelah tanggal cetak"
+    ],
+    ans: 0
+  },
+  {
+    q: "Berikut Cara Pembayaran Kartu Kredit BCA yang bersifat real time, kecuali",
+    opts: ["ATM BCA","myBCA","Internet Banking melalui www.klikbca.com","Autodebet rekening"],
+    ans: 3
+  },
+  {
+    q: "Berikut cara pembayaran kartu kredit BCA dari bank lain menggunakan LLG yang tidak sesuai adalah",
+    opts: [
+      "Mencantumkan Nama dan Nomor Customer kartu",
+      "Dana masuk di hari yang sama (melihat dari jam Batch)",
+      "Limit akan di kreditkan (menambah limit KK) (Hari Kerja+1) sejak dana efektif diterima BCA",
+      "Memerlukan waktu kliring 2 (hari) kerja"
+    ],
+    ans: 3
+  },
+  {
+    q: "Biaya permintaan ringkasan transaksi Kartu Kredit BCA 1 tahun berjalan",
+    opts: [
+      "Rp 100.000,- untuk setiap permintaan",
+      "Rp 10.000,- untuk setiap permintaan",
+      "Rp 30.000,- untuk setiap permintaan",
+      "Free"
+    ],
+    ans: 0
+  },
+  {
+    q: "Nama Asuransi penjamin untuk fitur Travel Insurance adalah",
+    opts: ["Prudential","Chubb Life","ACA (Asuransi Central Asia)","BCA Insurance"],
+    ans: 3
+  },
+  {
+    q: "Berikut cara registrasi eStatement yang dapat dilakukan sendiri oleh Cardholder",
+    opts: ["BCA Mobile","Website","SMS","Semua Benar"],
+    ans: 0
+  },
+  {
+    q: "Biaya keterlambatan pembayaran (late charge) untuk jenis kartu Amex Platinum adalah",
+    opts: [
+      "1,75% dari sisa tagihan",
+      "1% dari total tagihan per customer dan tidak melebihi Rp 100.000",
+      "3% dihitung dari total tagihan dan tidak melebihi Rp. 150.000,-",
+      "5% dihitung dari total tagihan dan tidak melebihi Rp. 50.000,-"
+    ],
+    ans: 0
+  }
+];
+
+const LABELS = ['A','B','C','D'];
+let shuffledQuestions = [];
+let currentQ = 0, score = 0, correctCount = 0, wrongCount = 0, timeoutCount = 0;
+let timer = null, timeLeft = 60;
+let answered = false;
+let selectedIdx = null;
+let userName = '';
+
+document.getElementById('totalQInfo').textContent = QUESTIONS.length;
+document.getElementById('qTotal').textContent = QUESTIONS.length;
+
+const nameInput = document.getElementById('nameInput');
+const startBtn  = document.getElementById('startBtn');
+nameInput.addEventListener('input', () => {
+  startBtn.disabled = nameInput.value.trim().length === 0;
+});
+
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  userName = nameInput.value.trim();
+  if (!userName) return;
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('quizScreen').style.display = 'block';
+  currentQ = 0; score = 0; correctCount = 0; wrongCount = 0; timeoutCount = 0;
+  shuffledQuestions = shuffleArray(QUESTIONS);
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+  selectedIdx = null;
+  const q = shuffledQuestions[currentQ];
+
+  document.getElementById('qNum').textContent = currentQ + 1;
+  document.getElementById('qNumLabel').textContent = `Soal ${currentQ + 1} dari ${shuffledQuestions.length}`;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('progressFill').style.width = `${(currentQ / shuffledQuestions.length) * 100}%`;
+
+  document.getElementById('feedbackBar').className = 'feedback-bar';
+  document.getElementById('feedbackBar').textContent = '';
+  document.getElementById('timeoutBar').className = 'timeout-bar';
+  document.getElementById('submitBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  const list = document.getElementById('optionsList');
+  list.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-label">${LABELS[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    list.appendChild(btn);
+  });
+
+  startTimer();
+}
+
+function startTimer() {
+  timeLeft = 60;
+  updateTimerUI();
+  clearInterval(timer);
+  timer = setInterval(() => {
+    timeLeft--;
+    updateTimerUI();
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      onTimeout();
+    }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const pill = document.getElementById('timerPill');
+  document.getElementById('timerDisp').textContent = timeLeft;
+  pill.className = 'timer-pill';
+  if (timeLeft <= 10) pill.classList.add('danger');
+  else if (timeLeft <= 20) pill.classList.add('warning');
+}
+
+function onTimeout() {
+  if (answered) return;
+  answered = true;
+  selectedIdx = null;
+  timeoutCount++;
+  disableOptions();
+  document.getElementById('submitBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
+  const tb = document.getElementById('timeoutBar');
+  tb.className = 'timeout-bar show';
+  // Auto-advance after 1.5 seconds
+  setTimeout(() => {
+    nextQuestion();
+  }, 1500);
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  selectedIdx = idx;
+  // highlight selected, clear others
+  document.querySelectorAll('.option-btn').forEach((b, i) => {
+    b.classList.toggle('selected', i === idx);
+  });
+  document.getElementById('submitBtn').style.display = 'inline-flex';
+}
+
+function submitAnswer() {
+  if (answered || selectedIdx === null) return;
+  answered = true;
+  clearInterval(timer);
+
+  const q = shuffledQuestions[currentQ];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => { b.disabled = true; b.classList.remove('selected'); });
+
+  const fb = document.getElementById('feedbackBar');
+  if (selectedIdx === q.ans) {
+    btns[selectedIdx].classList.add('correct');
+    correctCount++;
+    score++;
+    fb.className = 'feedback-bar correct-fb show';
+    fb.innerHTML = '✅ Jawaban Benar!';
+  } else {
+    btns[selectedIdx].classList.add('wrong');
+    wrongCount++;
+    fb.className = 'feedback-bar wrong-fb show';
+    fb.innerHTML = '❌ Jawaban Salah.';
+  }
+
+  document.getElementById('submitBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'inline-flex';
+  document.getElementById('nextBtn').textContent =
+    currentQ < shuffledQuestions.length - 1 ? 'Selanjutnya →' : 'Lihat Hasil';
+}
+
+function disableOptions() {
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= shuffledQuestions.length) {
+    showResult();
+  } else {
+    showQuestion();
+  }
+}
+
+function showResult() {
+  clearInterval(timer);
+  document.getElementById('quizScreen').style.display = 'none';
+  const rs = document.getElementById('resultScreen');
+  rs.style.display = 'flex';
+
+  const pct = Math.round((correctCount / shuffledQuestions.length) * 100);
+  document.getElementById('scoreCircle').style.setProperty('--pct', pct);
+  document.getElementById('scoreInner').textContent = `${pct}%`;
+  document.getElementById('resultName').textContent = userName;
+  document.getElementById('rCorrect').textContent = correctCount;
+  document.getElementById('rWrong').textContent = wrongCount;
+  document.getElementById('rSkipped').textContent = timeoutCount;
+
+  let msg = '';
+  if (pct >= 90) msg = '🏆 Luar biasa! Penguasaan materi sangat baik.';
+  else if (pct >= 75) msg = '🎯 Bagus! Terus tingkatkan pemahaman Anda.';
+  else if (pct >= 60) msg = '📚 Cukup baik. Perlu lebih banyak latihan.';
+  else msg = '💪 Semangat! Pelajari kembali materi dan coba lagi.';
+  document.getElementById('resultMsg').textContent = msg;
+}
+
+function resetQuiz() {
+  clearInterval(timer);
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('startScreen').style.display = 'flex';
+  document.getElementById('nameInput').value = '';
+  document.getElementById('startBtn').disabled = true;
+}
+</script>
+</body>
+</html>
